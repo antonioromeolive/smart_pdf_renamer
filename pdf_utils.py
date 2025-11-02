@@ -72,6 +72,10 @@ def makeValidFilename(the_string:str)->str:
         # Replace invalid characters with an underscore
         valid_filename = valid_filename.replace(char, "_")
     
+    # Remove leading and trailing whitespaces and _
+    valid_filename = valid_filename.strip()
+    valid_filename = valid_filename.strip("_")
+    
     return valid_filename
 
 def getAnswerFromAIConversation(l_conversation: AIConversation, throttle_seconds:int=1, max_retries:int=3, backoff_factor:int=5, MAX_RESPONSE_TOKENS:int=MAX_RESPONSE_TOKENS)->str:
@@ -373,7 +377,14 @@ def pdf_to_images_to_filename(pdf_full_path:str, use_page_no:int = 1) ->str:
                         "when applicable, the object of the transaction (a stock, a bond, on object acquired, a service, a payment, a receipt, a contract, etc.). "\
                         "The output should be a string with the following format: "\
                         "YYYY-MM-DD - Ente Emittente - Tipo Documento - Titolo del documento - Cosa Riguarda - Periodo. "\
-                        "Examples"\
+                        "For the date:"\
+                        "If it is a contract, use the date of the contract"\
+                        "If it is a receipt, use the date of the receipt or the date of the payment if available."\
+                        "If it is a bank statement, use the date of the statement or the date of the last transaction if available."\
+                        "if it is a an agenzia delle entrate document use the data di registrazione if available, otherwise use the data di emissione."\
+                        "Examples:"\
+                        "A document from the Italian Revenue Agency (Agenzia delle Entrate) for the year 2024:"\
+                        "   output:   '2024-01-01 - Agenzia delle Entrate - Documento - Registrazione contratto contractcodehere - 2024'."\
                         "A bank statement from BANKX for the month of March 2024:"\
                         "   output:   '2024-03-01 - BANKX - Estratto Conto - Marzo 2024'"\
                         "A receipt from Enel for the month of January 2025:"\
@@ -394,6 +405,9 @@ def pdf_to_images_to_filename(pdf_full_path:str, use_page_no:int = 1) ->str:
                         "if there is no date at all and one cannot be meaningfully inferred, use 0000-00-00 as date."\
                         "if it is just a graphic/image/diagram with no dates in it, just give a short description of the content and use '0000-00-00' as the date for the filename."\
                         "NEVER use special characters, spaces, slashes, backslashes, stars  or punctuation in the filename."\
+                        "READ CAREFULLY the whole page and understand the context of the document."\
+                        "The filename MUST be descriptive and meaningful, so that I can understand what the document is about just by looking at the filename."\
+                        "The filename MUST be in Italian, if the document is in Italian, or in English, if the document is in English."\
                         "The output MUST be only the new proposed filename as a SINGLE LINE STRING, with no explanation or additional text."
 
     
